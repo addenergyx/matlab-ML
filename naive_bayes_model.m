@@ -1,7 +1,78 @@
-data = readtable('.\credit_processed_data.csv');
+data = readtable('.\label_encoded_data.csv');
 
-% Summary
+% Data Summary
 summary(data)
+
+% Naive Bayes Model
+model = fitcnb(data, 'Risk');
+
+% Model Properties Summary
+model
+
+model.DistributionParameters
+model.Prior
+model.ClassNames
+
+% mean and std of sex in bad category
+model.DistributionParameters{1,2}
+
+% Train and Test sets
+cv = cvpartition(model.NumObservations, 'HoldOut', 0.2);
+
+cross_validation_model = crossval(model, 'cvpartition', cv);
+
+% Predictions for test data
+preds = predict(cross_validation_model.Trained{1}, data(test(cv), 1:end-1));
+
+% Classifier does fairly well, % accuracy
+matrix = confusionmat(cross_validation_model.Y(test(cv)), preds);
+
+% Calculating error metrics
+NB_cv_TN = matrix(1,1);
+NB_cv_FN = matrix(2,1);
+NB_cv_FP = matrix(1,2);
+NB_cv_TP = matrix(2,2);
+
+NB_cv_TPR_new = NB_cv_TP./(NB_cv_TP+NB_cv_FN);
+NB_cv_TNR_new = NB_cv_TN./(NB_cv_TN+NB_cv_FP);
+NB_cv_PPV_new = NB_cv_TP./(NB_cv_TP+NB_cv_FP);
+NB_cv_NPV_new = NB_cv_TN./(NB_cv_TN+NB_cv_FN);
+NB_cv_F1_new = (2*NB_cv_TP)./(2*NB_cv_TP + NB_cv_FP + NB_cv_FN);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
